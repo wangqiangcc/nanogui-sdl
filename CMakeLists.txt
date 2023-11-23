@@ -208,8 +208,12 @@ if (NANOGUI_BUILD_EXAMPLE)
   set_target_properties(
       example1 PROPERTIES
       VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/debug")
-  target_link_libraries(example1 ${NNGUI_EXTRA_LIBS} SDL2::SDL2-static SDL2_image::SDL2_image-static SDL2_ttf::SDL2_ttf-static)
 
+if (SDL_STATIC)
+  target_link_libraries(example1 ${NNGUI_EXTRA_LIBS} SDL2::SDL2-static SDL2_image::SDL2_image-static SDL2_ttf::SDL2_ttf-static)
+else()
+  target_link_libraries(example1 ${NNGUI_EXTRA_LIBS} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
+endif()
   # Copy icons for example application
   if (WIN32) 
     file(COPY resources/icons DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/debug)
