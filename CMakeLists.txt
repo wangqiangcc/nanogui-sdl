@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(SDL_STATIC "Build static SDL" ON)
+
 # Required libraries for linking against nngui (all targets)
 set(NNGUI_EXTRA_LIBS "")
 
@@ -62,6 +64,50 @@ endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
+if (SDL_STATIC)
+###################################SDL static############################################
+include(FetchContent)
+Set(FETCHCONTENT_QUIET FALSE)
+
+FetchContent_Declare(
+        SDL2
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+        GIT_TAG release-2.28.x
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(SDL2)
+
+FetchContent_Declare(
+        SDL2_image
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
+        GIT_TAG release-2.6.x
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+)
+
+# START ADDITION
+set(SDL2IMAGE_INSTALL OFF)
+set(BUILD_SHARED_LIBS FALSE)
+# END ADDITION
+
+FetchContent_MakeAvailable(SDL2_image)
+
+FetchContent_Declare(
+        SDL2_ttf
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
+        GIT_TAG release-2.20.x
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+)
+
+set(SDL2TTF_INSTALL OFF)
+set(BUILD_SHARED_LIBS FALSE)
+
+FetchContent_MakeAvailable(SDL2_ttf)
+
+##############################SDL static########################################
+else()
 find_package(SDL2 REQUIRED)
 find_package(SDL2IMAGE REQUIRED)
 find_package(SDL2TTF REQUIRED)
@@ -69,6 +115,7 @@ find_package(SDL2TTF REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${SDL2TTF_INCLUDE_DIR})
 include_directories(${SDL2_IMAGE_INCLUDE_DIR})
+endif()
 
 # Required core libraries on various platforms
 if (WIN32) 
@@ -161,7 +208,7 @@ if (NANOGUI_BUILD_EXAMPLE)
   set_target_properties(
       example1 PROPERTIES
       VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/debug")
-  target_link_libraries(example1 ${NNGUI_EXTRA_LIBS} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
+  target_link_libraries(example1 ${NNGUI_EXTRA_LIBS} SDL2::SDL2-static SDL2_image::SDL2_image-static SDL2_ttf::SDL2_ttf-static)
 
   # Copy icons for example application
   if (WIN32) 
